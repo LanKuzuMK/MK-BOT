@@ -63,7 +63,7 @@ export default function App() {
   
   // Header scroll state
   const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
 
   // Action states
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -95,12 +95,17 @@ export default function App() {
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
-    if (currentScrollY > 60 && currentScrollY > lastScrollY) {
-      setShowHeader(false); // Scrolling down
-    } else if (currentScrollY < lastScrollY) {
-      setShowHeader(true); // Scrolling up
+    const scrollDelta = currentScrollY - lastScrollY.current;
+
+    // Only update if absolute scroll difference is > 10 to prevent micro-jitters
+    if (Math.abs(scrollDelta) > 10) {
+      if (currentScrollY > 60 && scrollDelta > 0) {
+        if (showHeader) setShowHeader(false); // Scrolling down
+      } else if (scrollDelta < 0 || currentScrollY <= 60) {
+        if (!showHeader) setShowHeader(true); // Scrolling up
+      }
+      lastScrollY.current = currentScrollY;
     }
-    setLastScrollY(currentScrollY);
   };
 
   const handleClearChat = () => {
@@ -240,62 +245,55 @@ export default function App() {
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-gradient-to-tl from-cyan-400/[0.15] via-teal-400/[0.1] to-blue-400/[0.12] dark:from-cyan-600/[0.15] dark:via-teal-600/[0.1] dark:to-blue-600/[0.2] blur-[100px] pointer-events-none z-0" />
 
       {/* Scrollable / Hideable Header */}
-      <AnimatePresence>
-        {showHeader && (
-          <motion.header 
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            exit={{ y: -100 }}
-            transition={{ duration: 0.3 }}
-            className="shrink-0 w-full px-4 sm:px-6 py-3 sm:py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/50 dark:border-slate-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] z-50 transition-colors"
-          >
-            <div className="max-w-4xl mx-auto flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-indigo-600 shadow-md shadow-violet-500/20 text-white">
-                  <Sparkles size={20} className="fill-white/20" />
-                </div>
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-600 via-violet-600 to-indigo-600 dark:from-fuchsia-400 dark:via-violet-400 dark:to-indigo-400 flex flex-wrap items-center gap-1.5 sm:gap-2 leading-tight">
-                    Mini Jack
-                    <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-100 to-indigo-100 text-violet-700 dark:from-violet-900/40 dark:to-indigo-900/40 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 shadow-sm mt-0.5 sm:mt-0">
-                      by MK
-                    </span>
-                  </h1>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  onClick={() => setIsDarkMode(!isDarkMode)}
-                  className="p-2 sm:p-2.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg sm:rounded-xl transition-all duration-300 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 shadow-sm"
-                  title="Toggle Theme"
-                >
-                  {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                <button
-                  onClick={handleClearChat}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-300 shadow-sm border",
-                    isConfirmingClear 
-                      ? "bg-rose-500 text-white border-rose-500 hover:bg-rose-600 shadow-rose-500/25" 
-                      : "text-rose-500 dark:text-rose-400 hover:text-white dark:hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 border-rose-100 dark:border-rose-900/50 bg-white/60 dark:bg-slate-800/60"
-                  )}
-                  title="Clear current chat"
-                >
-                  <Trash2 size={16} />
-                  <span className="hidden sm:inline">
-                    {isConfirmingClear ? "Sure?" : "Clear Chat"}
-                  </span>
-                </button>
-              </div>
+      <header className={cn(
+        "absolute top-0 left-0 right-0 px-4 sm:px-6 py-3 sm:py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/50 dark:border-slate-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] z-50 transition-all duration-300",
+        showHeader ? "translate-y-0" : "-translate-y-full"
+      )}>
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-indigo-600 shadow-md shadow-violet-500/20 text-white">
+              <Sparkles size={20} className="fill-white/20" />
             </div>
-          </motion.header>
-        )}
-      </AnimatePresence>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-600 via-violet-600 to-indigo-600 dark:from-fuchsia-400 dark:via-violet-400 dark:to-indigo-400 flex flex-wrap items-center gap-1.5 sm:gap-2 leading-tight">
+                Mini Jack
+                <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-100 to-indigo-100 text-violet-700 dark:from-violet-900/40 dark:to-indigo-900/40 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 shadow-sm mt-0.5 sm:mt-0">
+                  by MK
+                </span>
+              </h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 sm:p-2.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg sm:rounded-xl transition-all duration-300 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 shadow-sm"
+              title="Toggle Theme"
+            >
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button
+              onClick={handleClearChat}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-300 shadow-sm border",
+                isConfirmingClear 
+                  ? "bg-rose-500 text-white border-rose-500 hover:bg-rose-600 shadow-rose-500/25" 
+                  : "text-rose-500 dark:text-rose-400 hover:text-white dark:hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 border-rose-100 dark:border-rose-900/50 bg-white/60 dark:bg-slate-800/60"
+              )}
+              title="Clear current chat"
+            >
+              <Trash2 size={16} />
+              <span className="hidden sm:inline">
+                {isConfirmingClear ? "Sure?" : "Clear Chat"}
+              </span>
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Chat Area - Scrollable */}
       <main 
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto w-full z-10 scroll-smooth px-2 sm:px-4"
+        className="flex-1 overflow-y-auto w-full z-10 pt-20 sm:pt-24 scroll-smooth px-2 sm:px-4"
       >
         <div className="max-w-4xl mx-auto flex flex-col gap-6 sm:gap-8 py-6 sm:py-8">
           <AnimatePresence>
@@ -316,9 +314,12 @@ export default function App() {
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-slate-100 mb-3 sm:mb-4 tracking-tight leading-tight transition-colors">
                   សួស្តី! <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-indigo-600 dark:from-fuchsia-400 dark:to-indigo-400">I'm Mini Jack.</span>
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto mb-8 sm:mb-10 text-base sm:text-lg leading-relaxed transition-colors">
+                <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto mb-4 text-base sm:text-lg leading-relaxed transition-colors">
                   The ultimate smart, friendly, and fun AI companion by <b className="dark:text-slate-200">Mong Kul (មង្គល)</b>. I'm ready to learn, help, and chat in both Khmer & English!
                 </p>
+                <div className="bg-amber-50/50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl text-xs sm:text-sm font-medium mb-8 sm:mb-10 backdrop-blur-sm mx-auto shadow-sm shadow-amber-500/5 transition-colors">
+                  ⚠️ សូមកុំចែករំលែកព័ត៌មានផ្ទាល់ខ្លួន ឬទិន្នន័យសម្ងាត់នៅទីនេះ។ <br className="hidden sm:block mt-0.5" /> Please don't share sensitive informations here.
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full max-w-3xl">
                   {[
@@ -456,6 +457,11 @@ export default function App() {
                 <Send size={18} className="translate-x-0.5 sm:w-5 sm:h-5" />
               )}
             </button>
+          </div>
+          <div className="text-center mt-2 px-2 transition-colors">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">
+              Mini Jack អាចធ្វើអោយមានកំហុស។ សូមផ្ទៀងផ្ទាត់ព័ត៌មានមុនពេលជឿជាក់។ (Mini Jack can make mistakes. Please verify important information.)
+            </span>
           </div>
         </div>
       </footer>
