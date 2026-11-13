@@ -1,94 +1,192 @@
 # Mini Jack by MK
 
-Mini Jack by MK is a Khmer-friendly conversational application built around a clean, responsive chat interface. It combines a focused visual identity with a practical assistant experience for everyday questions and guided conversations.
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:111827,50:164E63,100:06B6D4&height=200&section=header&text=Mini%20Jack&fontSize=65&fontColor=FFFFFF&animation=fadeIn&fontAlignY=38&desc=Your%20Khmer-Friendly%20AI%20Companion&descAlignY=60&descSize=17" width="100%" />
+</p>
 
-The application uses the Gemini API for response generation. The model integration is part of the product itself; this repository is an independent Vite and React project and does not depend on a hosted development studio.
+<p align="center">
+  A Khmer-friendly conversational application built for natural, accessible, and everyday AI conversations.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-Powered-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Gemini-API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" />
+</p>
+
+---
+
+## Overview
+
+**Mini Jack by MK** is a Khmer-friendly conversational application designed around a clean, responsive chat interface and an approachable AI assistant experience.
+
+Powered by the Gemini API, Mini Jack supports Khmer and English conversations, suggested prompts, animated interactions, and configurable assistant instructions.
+
+The project is built as an independent React application using Vite and TypeScript.
 
 ## Features
 
-- Responsive chat interface for desktop and mobile screens.
-- Khmer and English conversation support.
-- Suggested prompts for first-time visitors.
-- Animated message transitions and a clear composing state.
-- Configurable system instructions for the Mini Jack identity.
-- Client-side application shell with environment-based API configuration.
+- **Bilingual Conversations** — Support for Khmer and English interactions.
+- **AI-Powered Responses** — Gemini API integration for conversational response generation.
+- **Responsive Interface** — Optimized layouts for desktop and mobile devices.
+- **Suggested Prompts** — Helpful conversation starters for new users.
+- **Smooth Animations** — Animated message transitions and composing states.
+- **Custom Assistant Identity** — Configurable system instructions for Mini Jack.
+- **Environment Configuration** — External API configuration without hardcoding credentials into source files.
 
-## Technology
+## Technology Stack
 
 | Area | Technology |
-| --- | --- |
-| Frontend | React 19 and TypeScript |
-| Build | Vite |
-| Styling | Tailwind CSS 4 and custom CSS |
-| Motion | Motion for React |
+|---|---|
+| Frontend | React 19 |
+| Language | TypeScript |
+| Build Tool | Vite |
+| Styling | Tailwind CSS 4, Custom CSS |
+| Animation | Motion for React |
 | Icons | Lucide React |
-| Model API | `@google/genai` and Gemini |
+| AI Integration | Google Gemini API |
+| SDK | `@google/genai` |
 
-## Local development
+## Getting Started
 
-Install Node.js and npm, then install the dependencies:
+### Prerequisites
+
+Install the following before starting:
+
+- Node.js
+- npm
+- A valid Gemini API key
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/LanKuzuMK/MK-BOT.git
+cd MK-BOT
+```
+
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-Create a local environment file from the example:
+### 3. Configure environment variables
+
+Create a local environment file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Set `GEMINI_API_KEY` in `.env.local` to a valid Gemini API key. Keep this file local and never commit it.
+Add your Gemini API key:
 
-Start the development server:
+```env
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Keep your actual API key private. Never commit `.env.local` or expose credentials in public repositories.
+
+### 4. Start development
 
 ```bash
 npm run dev
 ```
 
-The project is available at the local Vite address shown in the terminal.
+Vite will display the local development URL in your terminal.
 
-## Production build
+## Production Build
 
-Run the TypeScript check and create the production bundle:
+Run the project checks:
 
 ```bash
 npm run lint
+```
+
+Create the production build:
+
+```bash
 npm run build
 ```
 
-Preview the production build locally:
+Preview the generated production build:
 
 ```bash
 npm run preview
 ```
 
-## Configuration
+The production output is generated in the `dist/` directory.
 
-| Variable | Purpose |
-| --- | --- |
-| `GEMINI_API_KEY` | Authenticates requests to the Gemini API. |
-| `APP_URL` | Optional application URL used by the deployment environment. |
-| `DISABLE_HMR` | Optional local flag for disabling Vite hot-module replacement. |
+## Environment Variables
 
-Never place a real API key in the repository, screenshots, issue reports, or public documentation.
+| Variable | Description | Required |
+|---|---|---|
+| `GEMINI_API_KEY` | Gemini API authentication key | Yes |
+| `APP_URL` | Optional application URL | No |
+| `DISABLE_HMR` | Optional flag to disable Vite HMR | No |
 
-## Project structure
+**Security Note:** Environment variables exposed through a browser-based frontend are not automatically secret. For production deployments, use a secure backend or server-side proxy to protect private API credentials. Verify the project's current API integration before deploying.
+
+## Project Structure
 
 ```text
-src/
-  App.tsx       Chat layout, Mini Jack instructions, and message flow
-  main.tsx      React entry point
-  index.css     Global styles, typography, and theme tokens
-  lib/utils.ts  Shared utility helpers
-index.html      Document shell
-vite.config.ts  Vite configuration and environment mapping
+MK-BOT/
+├── src/
+│   ├── App.tsx
+│   ├── main.tsx
+│   ├── index.css
+│   └── lib/
+│       └── utils.ts
+├── index.html
+├── vite.config.ts
+├── package.json
+├── package-lock.json
+├── .env.example
+└── README.md
 ```
 
 ## Deployment
 
-This is a standard Vite frontend. Use `npm run build` as the build command and publish the generated `dist` directory through a static host that can safely provide the required API configuration.
+Mini Jack is built as a Vite frontend application.
+
+Typical deployment configuration:
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Framework | Vite |
+| Node.js | Compatible version required by dependencies |
+
+Choose a static hosting provider that supports the application's production API architecture and environment configuration.
+
+## Security
+
+- Never publish real API keys.
+- Keep `.env.local` out of Git.
+- Review environment-variable exposure before production deployment.
+- Avoid committing private credentials or user data.
+- Keep dependencies updated.
+
+## Contributing
+
+Contributions and suggestions are welcome.
+
+1. Create a feature branch.
+2. Make a focused improvement.
+3. Run the available project checks.
+4. Submit a pull request describing your changes.
 
 ## License
 
-This is a personal project. Contact the owner before reusing its name, visual identity, copy, or interface assets.
+This is a personal project by MK. Contact the owner before reusing its name, visual identity, copy, or interface assets.
+
+---
+
+<p align="center">
+  **Mini Jack by MK**
+  <br />
+  Designed with care. Built for conversations.
+  <br />
+  <sub>© MK. All rights reserved.</sub>
+</p>
